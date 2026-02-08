@@ -41,7 +41,7 @@ definePageMeta({
         </div>
         
         <div class="flex justify-end">
-           <NuxtLink to="/forgot-password" class="text-xs font-semibold text-sky-600 hover:text-sky-500 dark:text-cyan-400 dark:hover:text-cyan-300">
+           <NuxtLink to="/dashboard" class="text-xs font-semibold text-sky-600 hover:text-sky-500 dark:text-cyan-400 dark:hover:text-cyan-300">
              Forgot password?
            </NuxtLink>
         </div>

@@ -1,83 +1,113 @@
 <script setup lang="ts">
-import { Home, Grid, PieChart, Calendar, Plus, Settings, LogOut } from 'lucide-vue-next'
+import { ref } from 'vue'
+import { Home, Grid, PieChart, Calendar, Settings, LogOut, Sun, Moon } from 'lucide-vue-next'
 
 const route = useRoute()
+const isDark = ref(false)
 
 const navItems = [
-  { name: 'Home', icon: Home, path: '/' },
+  { name: 'Dashboard', icon: Home, path: '/dashboard' },
   { name: 'Categories', icon: Grid, path: '/categories' },
   { name: 'Stats', icon: PieChart, path: '/stats' },
   { name: 'Calendar', icon: Calendar, path: '/calendar' },
+  { name: 'Settings', icon: Settings, path: '/settings' },
 ]
 
 const isActive = (path: string) => route.path === path
+
+const toggleTheme = () => {
+    isDark.value = !isDark.value
+    if (isDark.value) {
+        document.documentElement.classList.add('dark')
+    } else {
+        document.documentElement.classList.remove('dark')
+    }
+}
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#F2F4F6] text-slate-900 font-sans selection:bg-black selection:text-white flex">
+  <div class="min-h-screen bg-white text-slate-900 font-sans transition-colors duration-300 dark:bg-black dark:text-white selection:bg-sky-500 selection:text-white flex">
 
-    <aside class="hidden lg:flex flex-col w-64 h-screen fixed left-0 top-0 bg-white border-r border-gray-100 px-6 py-8 z-50">
-      <div class="flex items-center gap-3 mb-12">
-        <div class="h-10 w-10 bg-black rounded-xl flex items-center justify-center text-white font-bold text-lg">M</div>
-        <span class="font-bold text-xl tracking-tight">Manager</span>
+    <aside class="hidden lg:flex flex-col w-64 h-screen fixed left-0 top-0 border-r border-slate-100 bg-white px-5 py-6 z-50 dark:border-neutral-900 dark:bg-black">
+      
+      <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center gap-3">
+            <img src="~/assets/logo.png" alt="" class="h-7 w-7 rounded-lg object-cover">
+            <span class="font-sans text-lg font-bold tracking-tight text-slate-900 dark:text-white">
+                Manager
+            </span>
+        </div>
+
+        <button 
+          @click="toggleTheme"
+          class="rounded-full p-2 text-slate-400 hover:bg-slate-50 hover:text-sky-600 transition-colors dark:hover:bg-neutral-900"
+        >
+            <Sun v-if="isDark" class="h-4 w-4" />
+            <Moon v-else class="h-4 w-4" />
+        </button>
       </div>
 
-      <nav class="flex-1 space-y-2">
+      <nav class="flex-1 space-y-1">
         <NuxtLink 
           v-for="item in navItems" 
           :key="item.name" 
           :to="item.path"
-          class="flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-300 group"
-          :class="isActive(item.path) ? 'bg-black text-white shadow-lg shadow-black/20' : 'text-gray-500 hover:bg-gray-50'"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative"
+          :class="isActive(item.path) 
+            ? 'bg-sky-50 text-sky-600 dark:bg-sky-900/20 dark:text-sky-400' 
+            : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-neutral-900 dark:hover:text-white'"
         >
-          <component :is="item.icon" class="w-5 h-5" :class="isActive(item.path) ? 'text-white' : 'text-gray-400 group-hover:text-black'" />
-          <span class="font-medium">{{ item.name }}</span>
+          <div v-if="isActive(item.path)" class="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 rounded-r-full bg-sky-600"></div>
+
+          <component 
+            :is="item.icon" 
+            class="w-4 h-4" 
+            :class="isActive(item.path) ? 'text-sky-600 dark:text-sky-400' : 'group-hover:text-slate-600 dark:group-hover:text-slate-300'" 
+            stroke-width="2"
+          />
+          <span class="font-sans text-xs font-bold tracking-wide">{{ item.name }}</span>
         </NuxtLink>
       </nav>
 
-      <div class="mt-auto pt-6 border-t border-gray-100 space-y-2">
-        <button class="flex w-full items-center gap-4 px-4 py-3 rounded-2xl text-gray-500 hover:bg-gray-50 transition-colors">
-          <Settings class="w-5 h-5 text-gray-400" />
-          <span class="font-medium">Settings</span>
-        </button>
-        <button class="flex w-full items-center gap-4 px-4 py-3 rounded-2xl text-red-500 hover:bg-red-50 transition-colors">
-          <LogOut class="w-5 h-5" />
-          <span class="font-medium">Log out</span>
+      <div class="mt-auto pt-4 border-t border-slate-100 dark:border-neutral-800">
+        <button class="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors dark:hover:bg-red-900/10 dark:hover:text-red-400">
+          <LogOut class="w-4 h-4" />
+          <span class="font-sans text-xs font-bold">Log out</span>
         </button>
       </div>
     </aside>
 
-    <main class="flex-1 w-full lg:pl-64 min-h-screen pb-24 lg:pb-0">
-      <div class="max-w-5xl mx-auto p-4 sm:p-6 lg:p-10">
-        <slot />
-      </div>
+    <main class="flex-1 w-full lg:pl-64 min-h-screen pb-24 lg:pb-0 relative">
+        <div class="max-w-[1000px] mx-auto p-4 sm:p-8">
+            <slot />
+        </div>
     </main>
 
-    <div class="fixed bottom-0 left-0 w-full bg-white/80 backdrop-blur-xl border-t border-gray-100 pb-safe pt-2 px-6 lg:hidden z-50">
-      <div class="flex justify-between items-center h-16">
+    <div class="fixed top-4 right-4 z-[60] lg:hidden">
+        <button 
+          @click="toggleTheme"
+          class="rounded-full bg-white/90 backdrop-blur-md border border-slate-200 p-2 text-slate-500 shadow-sm dark:bg-black/90 dark:border-neutral-800 dark:text-slate-400"
+        >
+            <Sun v-if="isDark" class="h-4 w-4" />
+            <Moon v-else class="h-4 w-4" />
+        </button>
+    </div>
+
+    <div class="fixed bottom-6 left-0 right-0 flex justify-center lg:hidden z-50 pointer-events-none">
+      <div class="pointer-events-auto flex items-center gap-1 bg-white/90 backdrop-blur-xl border border-slate-200/50 p-1.5 rounded-2xl shadow-xl shadow-sky-900/5 dark:bg-neutral-900/90 dark:border-neutral-800 dark:shadow-black">
         <NuxtLink 
           v-for="item in navItems" 
           :key="item.name" 
           :to="item.path"
-          class="flex flex-col items-center justify-center gap-1 w-16 h-full transition-colors"
-          :class="isActive(item.path) ? 'text-black' : 'text-gray-400'"
+          class="flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-300"
+          :class="isActive(item.path) 
+            ? 'bg-sky-600 text-white shadow-lg shadow-sky-600/20' 
+            : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-neutral-800'"
         >
-          <component 
-            :is="item.icon" 
-            class="w-6 h-6 transition-transform duration-300" 
-            :class="isActive(item.path) ? 'fill-black scale-110' : ''" 
-            :stroke-width="isActive(item.path) ? 2.5 : 2"
-          />
+          <component :is="item.icon" class="w-4 h-4" />
         </NuxtLink>
       </div>
     </div>
 
   </div>
 </template>
-
-<style>
-/* Safe area for iPhone home bar */
-.pb-safe {
-  padding-bottom: env(safe-area-inset-bottom);
-}
-</style>
