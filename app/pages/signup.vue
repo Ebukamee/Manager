@@ -1,9 +1,32 @@
 <script setup lang="ts">
+import { authClient } from "../lib/auth-client";
+import { ref } from 'vue';
 definePageMeta({
   layout: 'auth-layout' 
 })
-</script>
+const name = ref('');
+const email = ref('');
+const password = ref('');
+const loading = ref(false);
 
+const handleSignUp = async () => {
+  loading.value = true;
+  
+  const { data, error } = await authClient.signUp.email({
+    email: email.value,
+    password: password.value,
+    name: name.value,
+  });
+
+  loading.value = false;
+
+  if (error) {
+    alert(error.message); 
+  } else {
+    await navigateTo('/dashboard');
+  }
+};
+</script>
 <template>
   <div class="group relative">
     
@@ -24,17 +47,19 @@ definePageMeta({
         </h1>
       </div>
 
-      <form class="mt-6 space-y-3">
+      <form @submit.prevent="handleSignUp" class="mt-6 space-y-3">
         
         <input 
           type="text" 
           placeholder="Full Name" 
+          v-model="name"
           class="w-full rounded-xl border-none bg-gray-50 px-4 py-3 text-sm font-medium text-gray-900 placeholder-gray-400 shadow-sm ring-1 ring-gray-200 transition-all focus:bg-white focus:ring-2 focus:ring-sky-500 dark:bg-neutral-900 dark:text-white dark:ring-neutral-800 dark:focus:bg-black dark:focus:ring-cyan-500"
         />
 
         <input 
           type="email" 
           placeholder="Email address" 
+          v-model="email"
           class="w-full rounded-xl border-none bg-gray-50 px-4 py-3 text-sm font-medium text-gray-900 placeholder-gray-400 shadow-sm ring-1 ring-gray-200 transition-all focus:bg-white focus:ring-2 focus:ring-sky-500 dark:bg-neutral-900 dark:text-white dark:ring-neutral-800 dark:focus:bg-black dark:focus:ring-cyan-500"
         />
 
@@ -42,12 +67,13 @@ definePageMeta({
           <input 
             type="password" 
             placeholder="Password" 
+            v-model="password"
             class="w-full rounded-xl border-none bg-gray-50 px-4 py-3 text-sm font-medium text-gray-900 placeholder-gray-400 shadow-sm ring-1 ring-gray-200 transition-all focus:bg-white focus:ring-2 focus:ring-sky-500 dark:bg-neutral-900 dark:text-white dark:ring-neutral-800 dark:focus:bg-black dark:focus:ring-cyan-500"
           />
         </div>
 
-        <button class="w-full rounded-xl bg-gradient-to-r from-sky-600 to-cyan-500 py-3 text-sm font-bold text-white shadow-lg shadow-sky-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
-          Sign Up
+        <button  class="w-full rounded-xl bg-gradient-to-r from-sky-600 to-cyan-500 py-3 text-sm font-bold text-white shadow-lg shadow-sky-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
+         {{ loading ? 'Creating Account...' : 'Sign Up' }}
         </button>
 
       </form>
