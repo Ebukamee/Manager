@@ -34,7 +34,7 @@ const darkBgStyle = {
            bg-gray-50 text-gray-900 dark:bg-black dark:text-white
            selection:bg-cyan-500 selection:text-white"
   >
-    <!-- Background layers (unchanged structure) -->
+
     <div class="absolute inset-0 z-10 h-full w-full pointer-events-none">
       <div
         class="absolute inset-0 opacity-5 dark:opacity-0 transition-opacity duration-500"
@@ -63,7 +63,7 @@ const darkBgStyle = {
             class="h-8 w-8 rounded-lg object-cover shadow-sm
                    transition-transform group-hover:scale-105"
           />
-          <span class="font-display text-lg font-bold tracking-tight">
+          <span class=" text-lg font-bold tracking-tight">
             Manager
           </span>
         </NuxtLink>
