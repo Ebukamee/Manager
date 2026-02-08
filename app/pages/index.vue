@@ -36,38 +36,39 @@
                     Task management with a personal touch
                 </div>
 
-                <h1 class="font-sans mx-auto max-w-5xl text-5xl font-extrabold tracking-tight sm:text-7xl">
-                    The To-Do List That <br />
-                    <span class="bg-gradient-to-r from-cyan-400 to-sky-600 bg-clip-text text-transparent">Never Lets You
-                        Forget.</span>
+                <h1 class="font-sans mx-auto max-w-5xl text-5xl font-bold tracking-tight sm:text-7xl">
+                    Finally, A Manager You <br />
+                    <span class="bg-gradient-to-r from-cyan-400 to-sky-600 bg-clip-text text-transparent">
+                        Can Actually Configure.
+                    </span>
                 </h1>
 
                 <p class="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-gray-600 dark:text-gray-400">
-                    Stop missing deadlines. We use an
-                    <span class="font-bold text-gray-900 dark:text-gray-100">Intelligent Escalation System</span>
-                    with 4 levels of reminders that start helpful and end... poorly.
+                    Stop missing deadlines.
+                    <span class="font-bold text-gray-900 dark:text-gray-100">Choose your accountability level</span>
+                    —from a supportive coach to an unhinged tyrant—and get <em>personalised</em> emails in the exact tone that motivates
+                    <em>you</em>.
                 </p>
 
                 <div
                     class="mt-8 grid grid-cols-2 gap-3 text-sm text-gray-600 sm:flex sm:justify-center dark:text-gray-400">
                     <span
                         class="flex items-center gap-2 rounded-md border border-gray-200 bg-white/60 px-3 py-1 shadow-sm backdrop-blur-sm dark:border-neutral-800 dark:bg-neutral-900/60">
-                        <span class="h-2 w-2 rounded-full bg-emerald-400"></span> Level 1: Gentle Nudge
+                        <span class="h-2 w-2 rounded-full bg-emerald-400"></span> Mode: Gentle
                     </span>
                     <span
                         class="flex items-center gap-2 rounded-md border border-gray-200 bg-white/60 px-3 py-1 shadow-sm backdrop-blur-sm dark:border-neutral-800 dark:bg-neutral-900/60">
-                        <span class="h-2 w-2 rounded-full bg-yellow-400"></span> Level 2: Firm Reminder
+                        <span class="h-2 w-2 rounded-full bg-yellow-400"></span> Mode: Firm
                     </span>
                     <span
                         class="flex items-center gap-2 rounded-md border border-gray-200 bg-white/60 px-3 py-1 shadow-sm backdrop-blur-sm dark:border-neutral-800 dark:bg-neutral-900/60">
-                        <span class="h-2 w-2 rounded-full bg-orange-500"></span> Level 3: Passive-Aggression
+                        <span class="h-2 w-2 rounded-full bg-orange-500"></span> Mode: Toxic
                     </span>
                     <span
                         class="flex items-center gap-2 rounded-md border border-gray-200 bg-white/60 px-3 py-1 shadow-sm backdrop-blur-sm dark:border-neutral-800 dark:bg-neutral-900/60">
-                        <span class="h-2 w-2 rounded-full bg-red-600"></span> Level 4: Existential Crisis
+                        <span class="h-2 w-2 rounded-full bg-red-600"></span> Mode: Unhinged
                     </span>
                 </div>
-
                 <div class="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
                     <button
                         class="h-12 w-full rounded-full bg-sky-600 px-8 text-sm font-bold text-white shadow-lg shadow-sky-500/25 transition hover:bg-sky-500 hover:scale-105 hover:shadow-sky-500/40 sm:w-auto">
@@ -95,7 +96,7 @@
                                 MM</div>
                             <div>
                                 <p class="font-bold text-gray-900 dark:text-white">From: MyManager AI</p>
-                                <p class="text-xs text-gray-500">Subject: re: re: re: API Documentation</p>
+                                <p class="text-xs text-gray-500">Subject:  API Documentation</p>
                             </div>
                         </div>
                         <span class="text-xs text-gray-400">10:42 AM</span>
@@ -104,7 +105,7 @@
                     <div class="p-8 font-sans text-gray-700 dark:text-gray-300">
                         <p class="mb-4">Hi there,</p>
                         <p class="mb-4">I see you still haven't finished the <strong>"API Documentation"</strong>. This
-                            is your <strong>Level 3</strong> notice.</p>
+                            is your notice.</p>
                         <p class="mb-4">I'm not mad, I'm just confused. Do you enjoy being the bottleneck? Is this a cry
                             for help?</p>
                         <div
