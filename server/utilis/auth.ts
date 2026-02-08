@@ -16,5 +16,10 @@ export const auth = betterAuth({
   emailAndPassword: {  
     enabled: true
   },
-  // We can add Google/GitHub providers here later!
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }
+  }
 });

@@ -1,4 +1,4 @@
-
+import { authClient } from "../lib/auth-client";
 
 export const getFormattedDate = (): string => {
   return new Intl.DateTimeFormat('en-US', {
@@ -14,3 +14,10 @@ export const getGreeting = (): string => {
   if (hour < 18) return 'Good Afternoon'
   return 'Good Evening'
 }
+
+export const handleGoogleSignIn = async () => {
+    await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/dashboard" 
+    });
+};
