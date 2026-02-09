@@ -1,9 +1,16 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Home, Grid, PieChart, Calendar, Settings, LogOut, Sun, Moon } from 'lucide-vue-next'
-
+import { authClient } from "~/lib/auth-client";
 const route = useRoute()
 const isDark = ref(false)
+
+
+const handleLogout = async () => {
+    await authClient.signOut();
+
+    await navigateTo('/');
+};
 
 const navItems = [
   { name: 'Dashboard', icon: Home, path: '/dashboard' },
@@ -70,7 +77,7 @@ const toggleTheme = () => {
       </nav>
 
       <div class="mt-auto pt-4 border-t border-slate-100 dark:border-neutral-800">
-        <button class="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors dark:hover:bg-red-900/10 dark:hover:text-red-400">
+        <button @click="handleLogout" class="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors dark:hover:bg-red-900/10 dark:hover:text-red-400">
           <LogOut class="w-4 h-4" />
           <span class="font-sans text-xs font-bold">Log out</span>
         </button>
