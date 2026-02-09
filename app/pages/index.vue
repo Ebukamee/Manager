@@ -74,10 +74,10 @@
                         class="h-12 w-full rounded-full bg-sky-600 px-8 text-sm font-bold text-white shadow-lg shadow-sky-500/25 transition hover:bg-sky-500 hover:scale-105 hover:shadow-sky-500/40 sm:w-auto">
                         Get Started
                     </button>
-                    <button
+                    <a href="#sample-email"
                         class="flex h-12 w-full items-center justify-center gap-2 rounded-full border border-gray-200 bg-white/50 px-8 text-sm font-bold text-gray-700 backdrop-blur-sm transition hover:bg-gray-50 dark:border-neutral-800 dark:bg-neutral-900/50 dark:text-gray-300 dark:hover:bg-neutral-800 sm:w-auto">
                         See How It Works
-                    </button>
+                    </a>
                 </div>
             </div>
 
@@ -87,7 +87,7 @@
                 </div>
 
                 <div
-                    class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-neutral-800 dark:bg-black">
+                    class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-neutral-800 dark:bg-black" id="sample-email">
                     <div
                         class="border-b border-gray-100 bg-gray-50 px-6 py-4 flex items-center justify-between dark:border-neutral-800 dark:bg-neutral-900">
                         <div class="flex items-center gap-4">
