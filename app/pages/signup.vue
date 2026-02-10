@@ -24,9 +24,9 @@ const handleSignUp = async () => {
   loading.value = false;
 
   if (error) {
-    alert(error.message); 
+    console.log(error); 
   } else {
-    await navigateTo('/dashboard');
+    await navigateTo('/verify-email');
   }
 };
 </script>

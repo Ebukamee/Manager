@@ -1,9 +1,38 @@
 <script setup lang="ts">
+import { authClient } from '~/lib/auth-client';
+import { ref, computed } from 'vue'; // Import computed
+
+const emailSent = ref(false);
+const loading = ref(false);
+
 definePageMeta({
   layout: 'auth-layout' 
 })
-</script>
 
+const session = authClient.useSession();
+
+const userEmail = computed(() => {
+    return session.value.data?.user.email || "";
+});
+
+const resendEmail = async () => {
+    loading.value = true;
+    
+    const emailToResend = userEmail.value === "" ? "" : userEmail.value;
+
+    const { data, error } = await authClient.sendVerificationEmail({
+        email: emailToResend,
+        callbackURL: "/dashboard"
+    });
+    
+    loading.value = false;
+    
+    // if (error) alert("Error: " + error.message);
+    if (error) console.log(error);
+    else emailSent.value = true;
+    console.log(session);
+};
+</script>
 <template>
   <div class="group relative">
     
@@ -25,7 +54,7 @@ definePageMeta({
         
         <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">
           We sent a verification link to <br/>
-          <span class="font-semibold text-gray-900 dark:text-white">name@example.com</span>
+          <span class="font-semibold text-gray-900 dark:text-white">{{ userEmail }}</span>
         </p>
       </div>
 
@@ -38,8 +67,8 @@ definePageMeta({
         <div class="text-center">
           <p class="text-xs text-gray-500 dark:text-gray-400">
             Didn't receive the email? 
-            <button class="font-semibold text-sky-600 hover:text-sky-500 hover:underline dark:text-cyan-400 dark:hover:text-cyan-300">
-              Click to resend
+            <button @click="resendEmail"  class="font-semibold text-sky-600 hover:text-sky-500 hover:underline dark:text-cyan-400 dark:hover:text-cyan-300">
+              {{ loading ? 'Sending...' : 'Resend Email' }}
             </button>
           </p>
         </div>

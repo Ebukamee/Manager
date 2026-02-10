@@ -72,7 +72,7 @@ const { data, error } = await authClient.signIn.email({
         </div>
 
         <button class="w-full rounded-xl bg-gradient-to-r from-sky-600 to-cyan-500 py-3 text-sm font-bold text-white shadow-lg shadow-sky-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
-          Sign In
+       {{ loading ? 'Signing in...' : 'Sign In' }}
         </button>
 
       </form>
