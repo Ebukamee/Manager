@@ -9,6 +9,7 @@ const successMessage = ref('')
 
 definePageMeta({
     layout: 'auth-layout',
+    middleware: ['auth', 'verified-email'] 
 })
 
 const session = authClient.useSession()

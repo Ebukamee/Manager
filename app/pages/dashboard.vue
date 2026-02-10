@@ -4,7 +4,9 @@ import { Plus, Search, Clock, Folder, ChevronRight, X, Circle, Calendar, ArrowUp
 import { getFormattedDate } from '../utilis/helper'
 import { authClient } from '~/lib/auth-client';
 
-definePageMeta({ layout: 'app-layout' })
+definePageMeta({ layout: 'app-layout',
+    middleware: ['auth', 'verified-email']
+ })
 
 // --- STATE ---
 const searchQuery = ref('')
