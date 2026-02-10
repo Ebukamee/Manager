@@ -36,12 +36,13 @@ const toggleTheme = () => {
                         <Sun v-if="isDark" class="h-5 w-5" :stroke-width="2" />
                         <Moon v-else class="h-5 w-5" :stroke-width="2" />
                     </button>
-
-                    <button
-                        class="flex items-center justify-center gap-2 rounded-full bg-sky-600 p-2 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition hover:bg-sky-500 hover:scale-105 sm:px-5 sm:py-2">
-                        <span class="hidden sm:inline">Get Started</span>
-                        <ArrowRight class="h-4 w-4" :stroke-width="2.5" />
-                    </button>
+                    <NuxtLink to="/dashboard">
+                        <button
+                            class="flex items-center justify-center gap-2 rounded-full bg-sky-600 p-2 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition hover:bg-sky-500 hover:scale-105 sm:px-5 sm:py-2">
+                            <span class="hidden sm:inline">Get Started</span>
+                            <ArrowRight class="h-4 w-4" :stroke-width="2.5" />
+                        </button>
+                    </NuxtLink>
                 </div>
 
             </div>

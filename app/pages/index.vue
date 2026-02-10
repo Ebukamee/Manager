@@ -70,10 +70,12 @@
                     </span>
                 </div>
                 <div class="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+                   <NuxtLink to="/dashboard">
                     <button
                         class="h-12 w-full rounded-full bg-sky-600 px-8 text-sm font-bold text-white shadow-lg shadow-sky-500/25 transition hover:bg-sky-500 hover:scale-105 hover:shadow-sky-500/40 sm:w-auto">
                         Get Started
                     </button>
+                     </NuxtLink>
                     <a href="#sample-email"
                         class="flex h-12 w-full items-center justify-center gap-2 rounded-full border border-gray-200 bg-white/50 px-8 text-sm font-bold text-gray-700 backdrop-blur-sm transition hover:bg-gray-50 dark:border-neutral-800 dark:bg-neutral-900/50 dark:text-gray-300 dark:hover:bg-neutral-800 sm:w-auto">
                         See How It Works
