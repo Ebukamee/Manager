@@ -21,6 +21,18 @@ export const auth = betterAuth({
   emailAndPassword: {  
     enabled: true,
     requireEmailVerification: false,
+    sendResetPassword: async ({user, url, token}, request) => {
+      await resend.emails.send({
+        from: "onboarding@resend.dev",
+        to: user.email,
+        subject: "Reset your password",
+        text: `Click the link to reset your password: ${url}`,
+      });
+    },
+    onPasswordReset: async ({ user }, request) => {
+      // your logic here
+      console.log(`Password for user ${user.email} has been reset.`);
+    },
 
   },
   emailVerification: {
@@ -37,10 +49,13 @@ export const auth = betterAuth({
         });
     }
 },
+
+
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      prompt: "select_account", 
     }
   }
 });
