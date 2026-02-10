@@ -1,7 +1,36 @@
 <script setup lang="ts">
+import { authClient } from '~/lib/auth-client';
+import { ref, computed } from 'vue'; // Import computed
+
+const emailSent = ref(false);
+const loading = ref(false);
+const email= ref('');
+
 definePageMeta({
   layout: 'auth-layout' 
 })
+
+const session = authClient.useSession();
+
+const userEmail = computed(() => {
+    return session.value.data?.user.email || "";
+});
+
+const requestPasswordReset = async () => {
+
+
+    const { data, error } = await authClient.requestPasswordReset({
+        email: email.value,
+        redirectTo: "/reset-password"
+    });
+    
+    loading.value = false;
+    
+    // if (error) alert("Error: " + error.message);
+    if (error) console.log(error);
+    else emailSent.value = true;
+    console.log(session);
+};
 </script>
 
 <template>
@@ -28,13 +57,14 @@ definePageMeta({
         </p>
       </div>
 
-      <form class="mt-6 space-y-4">
+      <form class="mt-6 space-y-4" @submit.prevent="requestPasswordReset">
         
         <div class="space-y-1">
           <label class="ml-1 text-xs font-medium text-gray-500 dark:text-gray-400">Email</label>
           <input 
             type="email" 
-            placeholder="Enter your email" 
+            placeholder="Enter your email"
+            v-model="email" 
             class="w-full rounded-xl border-none bg-gray-50 px-4 py-3 text-sm font-medium text-gray-900 placeholder-gray-400 shadow-sm ring-1 ring-gray-200 transition-all focus:bg-white focus:ring-2 focus:ring-sky-500 dark:bg-neutral-900 dark:text-white dark:ring-neutral-800 dark:focus:bg-black dark:focus:ring-cyan-500"
           />
         </div>
