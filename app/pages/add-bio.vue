@@ -1,7 +1,28 @@
 <script setup lang="ts">
+import { authClient } from '~/lib/auth-client';
+import { ref } from 'vue'
 definePageMeta({
-  layout: 'auth-layout' 
+  layout: 'auth-layout',
+  middleware: 'auth',
 })
+
+const jobTitle = ref('')
+const bio = ref('')
+const saveProfile = async () => {
+    const { data, error } = await authClient.updateUser({
+        jobTitle: jobTitle.value, 
+        bio: bio.value,
+    } as any);
+
+    if (error) {
+        console.error("Failed to update:", error.message);
+        alert("Something went wrong!");
+    } else {
+        console.log("Success!", data);
+        navigateTo('/dashboard');
+    }
+};
+
 </script>
 
 <template>
@@ -27,12 +48,13 @@ definePageMeta({
         </p>
       </div>
 
-      <form class="mt-8 space-y-5">
+      <form class="mt-8 space-y-5" @submit.prevent="saveProfile">
 
         <div>
            <label class="mb-1.5 ml-1 block text-xs font-medium text-gray-500 dark:text-gray-400">Role / Title</label>
            <input 
              type="text" 
+             v-model="jobTitle"
              placeholder="e.g. Project Manager, Student, CEO..." 
              class="w-full rounded-xl border-none bg-gray-50 px-4 py-3 text-sm font-medium text-gray-900 placeholder-gray-400 shadow-sm ring-1 ring-gray-200 transition-all focus:bg-white focus:ring-2 focus:ring-sky-500 dark:bg-neutral-900 dark:text-white dark:ring-neutral-800 dark:focus:bg-black dark:focus:ring-cyan-500"
            />
@@ -43,11 +65,12 @@ definePageMeta({
            <textarea 
              rows="4" 
              placeholder="I love micro-managing and drinking too much coffee..." 
+             v-model="bio"
              class="w-full resize-none rounded-xl border-none bg-gray-50 px-4 py-3 text-sm font-medium text-gray-900 placeholder-gray-400 shadow-sm ring-1 ring-gray-200 transition-all focus:bg-white focus:ring-2 focus:ring-sky-500 dark:bg-neutral-900 dark:text-white dark:ring-neutral-800 dark:focus:bg-black dark:focus:ring-cyan-500"
            ></textarea>
         </div>
 
-        <button class="w-full rounded-xl bg-gradient-to-r from-sky-600 to-cyan-500 py-3 text-sm font-bold text-white shadow-lg shadow-sky-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
+        <button  class="w-full rounded-xl bg-gradient-to-r from-sky-600 to-cyan-500 py-3 text-sm font-bold text-white shadow-lg shadow-sky-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
           Complete Setup
         </button>
 

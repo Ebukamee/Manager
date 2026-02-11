@@ -1,4 +1,6 @@
 import tailwindcss from '@tailwindcss/vite'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
+
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -29,8 +31,17 @@ srcDir: 'app/',
   vite: {
     plugins: [
       tailwindcss(),
+       nodePolyfills({
+        // Only polyfill what you actually need to keep the bundle small
+        globals: {
+          Buffer: true, 
+          process: true,
+        },
+      }),
     ],
+   
   },
+  
   imports: {
     transform: {
       exclude: [/\bIcon\b/]
@@ -41,5 +52,6 @@ srcDir: 'app/',
         imports: ['Sun', 'Moon', 'Menu', 'X', 'Check', 'ArrowRight'] // Add icons you need here
       }
     ]
-  }
+  },
+   
 })

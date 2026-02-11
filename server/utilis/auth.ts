@@ -5,8 +5,8 @@ import { Resend } from "resend";
 import { user, session, account, verification } from "../database/schema";
 
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-type User = typeof user.$inferSelect;
+const resend = new Resend(process.env?.RESEND_API_KEY);
+
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -18,6 +18,18 @@ export const auth = betterAuth({
         verification
     }
   }),
+  user: {
+    additionalFields: {
+      jobTitle: {
+        type: "string",
+        required:true,
+      },
+      bio: {
+        type: "string",
+         required:true,
+      },
+    },
+  },
   emailAndPassword: {  
     enabled: true,
     requireEmailVerification: false,

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed,onMounted } from 'vue'
 import { Plus, Search, Clock, Folder, ChevronRight, X, Circle, Calendar, ArrowUpRight } from 'lucide-vue-next'
-import { getFormattedDate } from '../utilis/helper'
+import { getFormattedDate,getGreeting } from '../utilis/helper'
 import { authClient } from '~/lib/auth-client';
 
 definePageMeta({ layout: 'app-layout',
@@ -12,8 +12,11 @@ definePageMeta({ layout: 'app-layout',
 const searchQuery = ref('')
 const showCreateModal = ref(false)
 const selectedCycle = ref<any>(null)
-const session =  authClient.useSession();
-const userEmail = session.value.data?.user.name;
+const session = authClient.useSession()
+
+const userName = computed(() => {
+  return session.value?.data?.user?.name ?? 'there'
+})
 // --- MOCK DATA ---
 const activeContainers = [
   { id: 'daily', name: 'Daily Task', type: 'system', count: 3, expires: 'Tonight' },
@@ -59,7 +62,9 @@ onMounted(() => {
         </p>
         <h1 class="font-sans text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Dashboard</h1>
       </div>
-<p>Good Day {{ userEmail }}</p>
+<p class="text-xs font-semibold text-slate-600 dark:text-slate-300">
+  {{ getGreeting() }}, {{ userName }}
+</p>
       <div class="flex items-center gap-3 w-full md:w-auto">
         <div class="relative group flex-1 md:w-64">
           <Search class="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 group-focus-within:text-sky-600 transition-colors" />
