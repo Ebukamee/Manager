@@ -3,6 +3,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "./db"; 
 import { Resend } from "resend"; 
 import { user, session, account, verification } from "../database/schema";
+import * as schema from "~~/server/database/schema";
 
 
 const resend = new Resend(process.env?.RESEND_API_KEY);
@@ -61,6 +62,32 @@ export const auth = betterAuth({
         });
     }
 },
+databaseHooks: {
+        user: {
+            create: {
+                after: async (user) => {
+                    // Create the "Immortal Big 3" for the new user
+                    await db.insert(schema.container).values([
+                        {
+                            userId: user.id,
+                            name: 'Daily Tasks',
+                            type: 'daily',
+                        },
+                        {
+                            userId: user.id,
+                            name: 'Weekly Goals',
+                            type: 'weekly',
+                        },
+                        {
+                            userId: user.id,
+                            name: 'Monthly Targets',
+                            type: 'monthly',
+                        }
+                    ]);
+                },
+            },
+        },
+    },
 
 
   socialProviders: {
