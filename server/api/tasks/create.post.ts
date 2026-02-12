@@ -4,7 +4,9 @@ import { task } from '~~/server/database/schema'
 import { auth } from '~~/server/utilis/auth'
 
 export default defineEventHandler(async (event: any) => {
-  const session = await auth.handler(event)
+  const session = await auth.api.getSession({
+  headers: event.headers 
+})
   if (!session) throw createError({ statusCode: 401, message: 'Unauthorized' })
 
   const body = await readBody(event)

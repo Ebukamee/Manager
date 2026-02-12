@@ -40,7 +40,7 @@ const initDashboard = async () => {
   try {
     const [containersData, tasksData] = await Promise.all([
       $fetch('/api/containers'),
-      // $fetch('/api/tasks') // Fetches all upcoming tasks for the user
+      $fetch('/api/tasks') // Fetches all upcoming tasks for the user
     ])
     activeContainers.value = containersData as any
     tasks.value = tasksData
@@ -116,7 +116,14 @@ const createContainer = async () => {
 }
 
 const allTasksSorted = computed(() => {
-  return [...tasks.value].sort((a, b) => a.priority === 'high' ? -1 : 1)
+  // Add a check: if tasks.value isn't an array, return an empty array
+  if (!Array.isArray(tasks.value)) return []
+  
+  return [...tasks.value].sort((a, b) => {
+    if (a.priority === 'high') return -1
+    if (b.priority === 'high') return 1
+    return 0
+  })
 })
 
 const todayDate = ref('')
