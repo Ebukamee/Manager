@@ -4,6 +4,7 @@ export const roastLevelEnum = pgEnum('roast_level', ['gentle', 'firm', 'toxic', 
 export const containerTypeEnum = pgEnum('container_type', ['daily', 'weekly', 'monthly', 'custom']);
 export const taskStatusEnum = pgEnum('task_status', ['pending', 'completed']);
 export const taskPriorityEnum = pgEnum('task_priority', ['low', 'medium', 'high']);
+export const taskCategoryEnum = pgEnum('task_category', ['Work', 'Personal', 'Health', 'Urgent']);
 
 export const user = pgTable('user', {
   id: text('id').primaryKey(),
@@ -72,5 +73,6 @@ export const task = pgTable('task', {
   status: taskStatusEnum('status').default('pending'),
   priority: taskPriorityEnum('priority').default('medium'),
   dueAt: timestamp('due_at'),
+  category: taskCategoryEnum('category'),
   createdAt: timestamp('created_at').defaultNow(),
 });
