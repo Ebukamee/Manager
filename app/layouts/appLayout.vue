@@ -91,9 +91,8 @@ const toggleTheme = () => {
       </button>
     </div>
 
-    <!-- MOBILE BOTTOM NAV (WITH LOGOUT) -->
     <div class="fixed bottom-6 left-0 right-0 flex justify-center lg:hidden z-50 pointer-events-none">
-      <div class="pointer-events-auto flex items-center gap-1 bg-white/90 backdrop-blur border p-1.5 rounded-2xl shadow-xl dark:bg-neutral-900 dark:border-neutral-800">
+      <div class="pointer-events-auto flex items-center gap-1 bg-white/90 backdrop-blur border p-1.5 border-white rounded-xl shadow-xl dark:bg-neutral-900 dark:border-neutral-900">
 
         <NuxtLink
           v-for="item in navItems"
