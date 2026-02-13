@@ -17,7 +17,9 @@ export default defineEventHandler(async (event: any) => {
     title: body.title,
     description: body.description || '',
     priority: body.priority || 'medium',
-    status: 'pending'
+    status: 'pending',
+    dueAt: body.dueAt ? new Date(body.dueAt) : null,
+    category:body.category,
   }).returning()
 
   return newTask

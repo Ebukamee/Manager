@@ -13,6 +13,7 @@ export default defineEventHandler(async (event) => {
     title: task.title,
     description: task.description,
     status: task.status,
+    category:task.category,
     priority: task.priority,
     dueAt: task.dueAt,
     containerName: container.name

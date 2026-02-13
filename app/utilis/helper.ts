@@ -21,3 +21,13 @@ export const handleGoogleSignIn = async () => {
         callbackURL: "/dashboard" 
     });
 };
+
+export const getCategoryClass = (category: string) => {
+  switch (category) {
+    case 'work': return 'text-sky-600 bg-sky-50 dark:bg-sky-500/10 dark:text-sky-400'
+    case 'personal': return 'text-purple-600 bg-purple-50 dark:bg-purple-500/10 dark:text-purple-400'
+    case 'health': return 'text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 dark:text-emerald-400'
+    case 'finance': return 'text-rose-600 bg-rose-50 dark:bg-rose-500/10 dark:text-rose-400'
+    default: return 'text-slate-600 bg-slate-50 dark:bg-neutral-800'
+  }
+}
