@@ -39,6 +39,7 @@ const newTaskData = ref({
   category: "work",
   dueAt: "",
 });
+
 const closeCycle = () => {
   selectedCycle.value = null;
 };
@@ -61,7 +62,16 @@ const containerTaskCounts = computed(() => {
   });
   return counts;
 });
-
+const allTasksSorted = computed(() => {
+  if (!Array.isArray(tasks.value)) return []
+  
+  return tasks.value
+    .filter(t => t.status !== 'completed') // This stays automatic
+    .sort((a, b) => {
+      if (a.priority === 'high') return -1
+      return 1
+    })
+})
 const initDashboard = async () => {
   isInitialLoading.value = true;
   try {
@@ -77,7 +87,14 @@ const initDashboard = async () => {
     isInitialLoading.value = false;
   }
 };
+const showCompletedInModal = ref(false);
 
+const filteredCycleTasks = computed(() => {
+  if (showCompletedInModal.value) {
+    return cycleTasks.value;
+  }
+  return cycleTasks.value.filter((t) => t.status !== "completed");
+});
 const openCycle = async (container: any) => {
   selectedCycle.value = container;
   isAddingTask.value = false;
@@ -120,10 +137,7 @@ const addTask = async () => {
   }
 };
 
-const allTasksSorted = computed(() => {
-  if (!Array.isArray(tasks.value)) return [];
-  return [...tasks.value].sort((a, b) => (a.priority === "high" ? -1 : 1));
-});
+
 
 const todayDate = ref("");
 const toggleTaskStatus = async (taskItem: any) => {
@@ -315,9 +329,23 @@ onMounted(() => {
             </button>
           </div>
 
+          <div
+            class="px-6 pt-2 pb-2 flex items-center justify-between bg-slate-50/50 dark:bg-neutral-800/30"
+          >
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+              {{ showCompletedInModal ? "Showing All Tasks" : "Hiding Completed" }}
+            </p>
+            <button
+              @click="showCompletedInModal = !showCompletedInModal"
+              class="text-[10px] font-bold text-sky-600 hover:text-sky-500 transition-colors uppercase"
+            >
+              {{ showCompletedInModal ? "Clear Completed" : "Show Completed" }}
+            </button>
+          </div>
+
           <div class="px-6 py-4 max-h-[40vh] overflow-y-auto space-y-2">
             <TaskAccordionItem
-              v-for="task in cycleTasks"
+              v-for="task in filteredCycleTasks"
               :key="task.id"
               :task="task"
               :isExpanded="expandedTaskId === task.id"
@@ -326,10 +354,10 @@ onMounted(() => {
               @delete="deleteTask(task.id)"
             />
             <p
-              v-if="cycleTasks.length === 0"
+              v-if="filteredCycleTasks.length === 0"
               class="text-center py-4 text-xs text-slate-400"
             >
-              No tasks in this cycle yet.
+              {{ showCompletedInModal ? "No tasks found." : "All tasks caught up!" }}
             </p>
           </div>
 
