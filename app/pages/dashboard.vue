@@ -99,9 +99,11 @@ const openCycle = async (container: any) => {
   selectedCycle.value = container;
   isAddingTask.value = false;
   expandedTaskId.value = null;
-  cycleTasks.value = [];
+  cycleTasks.value = []; 
   try {
-    const data = await $fetch(`/api/tasks/container/${container.id}`);
+    const data = await $fetch(`/api/tasks`, {
+      query: { containerId: container.id } 
+    });
     cycleTasks.value = data as any;
   } catch (err) {
     console.error("Error fetching cycle tasks:", err);

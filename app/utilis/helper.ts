@@ -2,9 +2,9 @@ import { authClient } from "../lib/auth-client";
 
 export const getFormattedDate = (): string => {
   return new Intl.DateTimeFormat('en-US', {
-    weekday: 'long', // "Thursday"
-    month: 'short',  // "Jan"
-    day: 'numeric',  // "18"
+    weekday: 'long',
+    month: 'short',  
+    day: 'numeric',
   }).format(new Date())
 }
 
