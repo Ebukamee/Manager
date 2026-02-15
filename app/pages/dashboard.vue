@@ -13,7 +13,7 @@ import {
   Send,
   ChevronDown,
 } from "lucide-vue-next";
-import { getFormattedDate, getGreeting, getCategoryClass } from "../utilis/helper";
+import { getFormattedDate, getGreeting, getPeriodEndDate } from "../utilis/helper";
 import { authClient } from "~/lib/auth-client";
 
 import ContainerCard from "~/components/ContainerCard.vue";
@@ -109,10 +109,31 @@ const openCycle = async (container: any) => {
 };
 
 const addTask = async () => {
-  if (!newTaskData.value.title.trim() || !selectedCycle.value) return;
+  if (!newTaskData.value.title.trim() || !selectedCycle.value) return
+  
   const payload = { ...newTaskData.value };
-  if (selectedCycle.value.type === "daily") {
-    payload.dueAt = new Date().toISOString().split("T")[0] as any;
+  const cycleType = selectedCycle.value.type;
+
+  if (cycleType === 'daily') {
+    payload.dueAt = new Date().toISOString().split('T')[0] as any;
+  } 
+  
+  else if (payload.dueAt) {
+    const taskDate = new Date(payload.dueAt).getTime();
+    
+  
+    let limitDate;
+    if (cycleType === 'custom' && selectedCycle.value.expiresAt) {
+      limitDate = new Date(selectedCycle.value.expiresAt).getTime();
+    } else {
+      const periodEnd = getPeriodEndDate(cycleType);
+      limitDate = periodEnd ? new Date(periodEnd).getTime() : null;
+    }
+
+    if (limitDate && taskDate > limitDate) {
+      alert(`Deadline must be within the current ${cycleType} period.`);
+      return;
+    }
   }
   isLoading.value = true;
   try {
@@ -188,19 +209,14 @@ onMounted(() => {
         >
           {{ todayDate }}
         </p>
-        <h1
-          class="font-sans text-2xl font-bold text-slate-900 dark:text-white tracking-tight"
-        >
-          Dashboard
-        </h1>
-        <div class="flex items-baseline gap-2 mt-5">
+        <div class="flex items-baseline gap-2 mt-5 font-display">
           <h1
-            class="font-sans text-xl font-black text-slate-900 dark:text-white tracking-tight"
+            class=" text-xl font-bold text-slate-900 dark:text-white tracking-tight"
           >
             {{ getGreeting() }},
           </h1>
           <span
-            class="text-lg font-medium text-slate-500 dark:text-slate-400 capitalize"
+            class="text-lg font-medium  capitalize text-sky-600"
             >{{ userName }}</span
           >
         </div>
@@ -433,11 +449,14 @@ onMounted(() => {
                     <Calendar
                       class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400"
                     />
-                    <input
-                      v-model="newTaskData.dueAt"
-                      type="date"
-                      class="w-full bg-slate-50 h-10 rounded-xl pl-9 pr-3 text-xs font-medium focus:ring-2 focus:ring-sky-500/20 outline-none dark:bg-neutral-800 dark:text-white"
-                    />
+                    <input 
+  v-model="newTaskData.dueAt" 
+  type="date" 
+  :max="selectedCycle.type === 'custom' 
+    ? (selectedCycle.expiresAt ? new Date(selectedCycle.expiresAt).toISOString().split('T')[0] : undefined)
+    : getPeriodEndDate(selectedCycle.type)"
+  class="w-full bg-slate-50 h-10 rounded-xl pl-9 pr-3 ..." 
+/>
                   </div>
                 </div>
                 <div

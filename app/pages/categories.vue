@@ -78,7 +78,7 @@ onMounted(() => initCategories())
         v-for="cat in categoryCards" 
         :key="cat.name"
         @click="selectedCategory = cat.name"
-        class="group cursor-pointer p-6 bg-white rounded-2xl border border-slate-100 shadow-sm hover:border-slate-200 hover:shadow-md transition-all dark:bg-neutral-900 dark:border-neutral-800"
+        class="group cursor-pointer p-6 bg-white rounded-xl border border-slate-100 shadow-sm hover:border-slate-200 hover:shadow-md transition-all dark:bg-neutral-900 dark:border-neutral-800"
       >
         <div :class="[cat.lightColor, cat.textColor]" class="mb-4 h-12 w-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110">
           <component :is="cat.icon" class="w-6 h-6" />
