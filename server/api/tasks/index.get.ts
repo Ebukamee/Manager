@@ -22,7 +22,6 @@ export default defineEventHandler(async (event) => {
     )
   ];
 
-  // 3. If period is NOT 'all', add the type filter to the SQL query
   if (period !== 'all') {
     conditions.push(eq(container.type, period));
   }
@@ -41,6 +40,6 @@ export default defineEventHandler(async (event) => {
   })
   .from(task)
   .innerJoin(container, eq(task.containerId, container.id))
-  .where(and(...conditions)) // Spread the conditions array here
+  .where(and(...conditions)) 
   .orderBy(task.dueAt);
 });

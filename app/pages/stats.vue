@@ -17,6 +17,35 @@ const activePeriod = ref<"all" | "daily" | "weekly" | "monthly" | "custom">("all
 const selectedContainerId = ref<string | null>(null);
 const activeCategory = ref("All");
 
+// --- LOCAL DATE HELPERS (Matches Dashboard) ---
+const getLocalToday = () => {
+  const d = new Date();
+  const offset = d.getTimezoneOffset() * 60000;
+  return new Date(d.getTime() - offset).toISOString().split("T")[0];
+};
+
+const getTomorrowStr = () => {
+  const date = new Date();
+  date.setDate(date.getDate() + 1);
+  return date.toISOString().split("T")[0];
+};
+
+const getLocalStartOfWeek = () => {
+  const d = new Date();
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  const monday = new Date(d.setDate(diff));
+  const offset = monday.getTimezoneOffset() * 60000;
+  return new Date(monday.getTime() - offset).toISOString().split("T")[0];
+};
+
+const getLocalStartOfMonth = () => {
+  const d = new Date();
+  const first = new Date(d.getFullYear(), d.getMonth(), 1);
+  const offset = first.getTimezoneOffset() * 60000;
+  return new Date(first.getTime() - offset).toISOString().split("T")[0];
+};
+
 const fetchData = async () => {
   isLoading.value = true;
   try {
@@ -26,10 +55,6 @@ const fetchData = async () => {
     ]);
     tasks.value = taskRes;
     containers.value = containerRes;
-
-    // DEBUG: Check data structure
-    console.log("Tasks sample:", tasks.value.slice(0, 3));
-    console.log("Containers sample:", containers.value.slice(0, 3));
   } catch (err) {
     console.error("Data fetch error:", err);
   } finally {
@@ -62,78 +87,73 @@ watch(selectedContainerId, (newVal) => {
   }
 });
 
-// Helper function to find task's container
 const findTaskContainer = (task: any) => {
-  // Try multiple possible field names
-  const possibleIds = [
-    task.containerId,
-    task.container_id,
-    task.containerID,
-    task.parentId,
-    task.parent_id,
-    task.listId,
-    task.list_id,
-  ];
-
+  const possibleIds = [task.containerId, task.container_id, task.containerID];
   for (const id of possibleIds) {
     if (id) {
-      const found = containers.value.find(
-        (c) => String(c.id) === String(id) || String(c._id) === String(id)
-      );
+      const found = containers.value.find((c) => String(c.id) === String(id));
       if (found) return found;
     }
   }
-
   return null;
 };
 
 const processedStats = computed(() => {
   if (!tasks.value.length) return { completed: 0, pending: 0, expired: 0, total: 0 };
 
-  let list = [...tasks.value];
+  const today = getLocalToday();
+  const tomorrow = getTomorrowStr();
+  const startWeek = getLocalStartOfWeek();
+  const startMonth = getLocalStartOfMonth();
 
-  // 1. Category Filter
-  if (activeCategory.value !== "All") {
-    list = list.filter(
-      (t) =>
-        t.category?.toLowerCase().trim() === activeCategory.value.toLowerCase().trim()
-    );
-  }
+  // DASHBOARD STYLE FILTERING + CREATION DATE CHECK
+  let list = tasks.value.filter((t) => {
+    // 1. Category Filter
+    if (activeCategory.value !== "All") {
+      if (t.category?.toLowerCase() !== activeCategory.value.toLowerCase()) return false;
+    }
 
-  // 2. Period Filter
-  if (activePeriod.value !== "all") {
-    list = list.filter((t) => {
-      const parent = findTaskContainer(t);
+    const container = findTaskContainer(t);
+    if (!container) return false;
 
-      // If no parent container found, check if task itself has a type/period property
-      if (!parent) {
-        // Maybe tasks have their own type/period field?
-        const taskType = t.type || t.period || t.frequency;
-        if (taskType) {
-          if (activePeriod.value === "custom") {
-            return taskType === "custom";
-          }
-          return taskType === activePeriod.value;
-        }
-        return false; // No parent and no type field
-      }
+    // Get the container's creation date (YYYY-MM-DD)
+    const containerCreated = container.createdAt
+      ? container.createdAt.split("T")[0]
+      : "0000-00-00";
 
-      // Handle custom container selection
-      if (activePeriod.value === "custom") {
-        if (selectedContainerId.value) {
-          return (
-            String(t.containerId || t.container_id) === String(selectedContainerId.value)
-          );
-        }
-        return parent.type === "custom";
-      }
+    // 2. Specific Container Selection (Overwrites period logic)
+    if (activePeriod.value === "custom" && selectedContainerId.value) {
+      return String(container.id) === String(selectedContainerId.value);
+    }
 
-      // Match parent type
-      return parent.type === activePeriod.value;
-    });
-  }
+    // 3. Tab Filter (Daily, Weekly, Monthly)
+    if (activePeriod.value !== "all" && container.type !== activePeriod.value) {
+      return false;
+    }
 
-  // 3. Status Counts
+    // 4. Strict Time Window Logic (Using Task DueAt AND Container CreatedAt)
+    if (container.type === "daily") {
+      return t.dueAt >= today && t.dueAt <= tomorrow;
+    }
+
+    if (container.type === "weekly") {
+      return t.dueAt >= startWeek;
+    }
+
+    if (container.type === "monthly") {
+      // Must be due this month AND container must not be from a past month
+      return t.dueAt >= startMonth && containerCreated >= startMonth;
+    }
+
+    if (container.type === "custom") {
+      // Hides custom containers created in previous months (like Jan in Feb)
+      return t.dueAt >= today && containerCreated >= startMonth;
+    }
+
+    // Default for 'all' period: show only today onwards
+    return t.dueAt >= today;
+  });
+
   const completed = list.filter((t) => t.status === "completed").length;
   const expired = list.filter((t) => isTaskExpired(t)).length;
   const pending = list.length - (completed + expired);
@@ -168,7 +188,6 @@ onMounted(() => fetchData());
 </script>
 
 <template>
-  <!-- Same template as before -->
   <div class="flex flex-col gap-6 pt-6 pb-12 max-w-7xl mx-auto px-4">
     <div
       class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
@@ -326,7 +345,6 @@ onMounted(() => fetchData());
               >
             </div>
           </div>
-
           <div class="mt-10 space-y-2.5 w-full">
             <div
               v-for="item in [

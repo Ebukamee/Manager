@@ -12,6 +12,7 @@ import {
   ArrowUpRight,
   Send,
   ChevronDown,
+  Trash2,
 } from "lucide-vue-next";
 import { getFormattedDate, getGreeting, getPeriodEndDate } from "../utilis/helper";
 import { authClient } from "~/lib/auth-client";
@@ -45,7 +46,7 @@ const closeCycle = () => {
 };
 const isAddingTask = ref(false);
 const isLoading = ref(false);
-const newContainer = ref({ name: "", expires: "", type: "custom" });
+const newContainer = ref({ name: "", expiresAt: "", type: "custom" });
 
 const userName = computed(() => session.value?.data?.user?.name ?? "there");
 
@@ -53,79 +54,184 @@ const activeContainers = ref<any[]>([]);
 const tasks = ref<any[]>([]);
 const cycleTasks = ref<any[]>([]);
 
+// --- DATE HELPERS FOR FILTERING ---
+const getTodayStr = () => new Date().toISOString().split("T")[0];
+
+const getStartOfWeek = () => {
+  const now = new Date();
+  const day = now.getDay();
+  const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Monday
+  return new Date(now.setDate(diff)).toISOString().split("T")[0];
+};
+
+const getTomorrowStr = () => {
+  const date = new Date();
+  date.setDate(date.getDate() + 1);
+  return date.toISOString().split("T")[0];
+};
+
+const getStartOfMonth = () => {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
+};
+
 const containerTaskCounts = computed(() => {
   const counts: Record<string, number> = {};
+  const today = getTodayStr();
+  const startWeek = getStartOfWeek();
+  const startMonth = getStartOfMonth();
+  const tomorrow = getTomorrowStr();
+
   tasks.value.forEach((task) => {
-    if (task.containerId) {
+    const container = activeContainers.value.find((c) => c.id === task.containerId);
+    if (!container) return;
+
+    let isValid = false;
+    if (container.type === "daily")
+      isValid = task.dueAt >= today && task.dueAt <= tomorrow;
+    else if (container.type === "weekly") isValid = task.dueAt >= startWeek;
+    else if (container.type === "monthly") isValid = task.dueAt >= startMonth;
+    else isValid = task.dueAt >= today;
+
+    if (isValid) {
       counts[task.containerId] = (counts[task.containerId] || 0) + 1;
     }
   });
   return counts;
 });
+
 const allTasksSorted = computed(() => {
-  if (!Array.isArray(tasks.value)) return []
-  
+  if (!Array.isArray(tasks.value)) return [];
+  const today = getTodayStr();
+  const query = searchQuery.value.toLowerCase().trim();
+
   return tasks.value
-    .filter(t => t.status !== 'completed') // This stays automatic
-    .sort((a, b) => {
-      if (a.priority === 'high') return -1
-      return 1
+    .filter((t) => {
+      const isActive = t.status !== "completed" && t.dueAt >= today;
+      const matchesSearch =
+        t.title.toLowerCase().includes(query) ||
+        t.description?.toLowerCase().includes(query);
+      return isActive && matchesSearch;
     })
-})
+    .sort((a, b) => (a.priority === "high" ? -1 : 1));
+});
+
+// Replace the initDashboard logic for containers
 const initDashboard = async () => {
   isInitialLoading.value = true;
   try {
     const [containersData, tasksData] = await Promise.all([
       $fetch("/api/containers"),
-      $fetch("/api/tasks"),
+      $fetch("/api/tasks", { query: { period: "all" } }),
     ]);
-    activeContainers.value = containersData as any[];
+
+    const now = new Date().toISOString().split("T")[0];
+
+    activeContainers.value = (containersData as any[]).filter((c) => {
+      if (!c.expiresAt) return true;
+      return c.expiresAt >= now;
+    });
+
     tasks.value = tasksData as any[];
   } catch (err) {
-    console.error("Failed to load dashboard:", err);
+    console.error("Dashboard Load Error:", err);
   } finally {
     isInitialLoading.value = false;
   }
 };
-const showCompletedInModal = ref(false);
 
-const filteredCycleTasks = computed(() => {
-  if (showCompletedInModal.value) {
-    return cycleTasks.value;
-  }
-  return cycleTasks.value.filter((t) => t.status !== "completed");
-});
-const openCycle = async (container: any) => {
-  selectedCycle.value = container;
-  isAddingTask.value = false;
-  expandedTaskId.value = null;
-  cycleTasks.value = []; 
+const createContainer = async () => {
+  if (!newContainer.value.name.trim()) return;
+  isLoading.value = true;
   try {
-    const data = await $fetch(`/api/tasks`, {
-      query: { containerId: container.id } 
+    const response = await $fetch("/api/containers/create", {
+      method: "POST",
+      body: newContainer.value,
     });
-    cycleTasks.value = data as any;
+    activeContainers.value.push(response);
+    showCreateModal.value = false;
+    newContainer.value = { name: "", expiresAt: "", type: "custom" };
+  } catch (error) {
+    console.error("Failed to create container:", error);
+  } finally {
+    isLoading.value = false;
+  }
+};
+const deleteContainer = async (containerId: string) => {
+  if (!confirm("Are you sure? This will delete the cycle and all its tasks.")) return;
+
+  isLoading.value = true;
+  try {
+    await $fetch(`/api/containers/${containerId}`, { method: "DELETE" });
+
+    activeContainers.value = activeContainers.value.filter((c) => c.id !== containerId);
+
+    if (selectedCycle.value?.id === containerId) {
+      selectedCycle.value = null;
+    }
   } catch (err) {
-    console.error("Error fetching cycle tasks:", err);
+    console.error("Failed to delete container:", err);
+    alert("Could not delete this cycle.");
+  } finally {
+    isLoading.value = false;
   }
 };
 
+const showCompletedInModal = ref(false);
+
+const filteredCycleTasks = computed(() => {
+  if (!selectedCycle.value) return [];
+  const today = getTodayStr();
+  const startWeek = getStartOfWeek();
+  const startMonth = getStartOfMonth();
+  const tomorrow = getTomorrowStr();
+
+  // Filter by container ID
+  let list = tasks.value.filter(
+    (t) => String(t.containerId) === String(selectedCycle.value.id)
+  );
+
+  // Filter by current time window
+  list = list.filter((t) => {
+    const type = selectedCycle.value.type;
+    // Daily cutoff now includes Today and Tomorrow
+    if (type === "daily") return t.dueAt >= today && t.dueAt <= tomorrow;
+    if (type === "weekly") return t.dueAt >= startWeek;
+    if (type === "monthly") return t.dueAt >= startMonth;
+    return t.dueAt >= today;
+  });
+
+  // Apply the "Show Completed" toggle
+  if (!showCompletedInModal.value) {
+    list = list.filter((t) => t.status !== "completed");
+  }
+
+  return list;
+});
+
+const openCycle = (container: any) => {
+  selectedCycle.value = container;
+  isAddingTask.value = false;
+  expandedTaskId.value = null;
+};
+
 const addTask = async () => {
-  if (!newTaskData.value.title.trim() || !selectedCycle.value) return
-  
+  if (!newTaskData.value.title.trim() || !selectedCycle.value) return;
+
   const payload = { ...newTaskData.value };
   const cycleType = selectedCycle.value.type;
 
-  if (cycleType === 'daily') {
-    payload.dueAt = new Date().toISOString().split('T')[0] as any;
-  } 
-  
-  else if (payload.dueAt) {
+  if (cycleType === "daily") {
+    // Set dueAt to tomorrow at midnight (00:00:00)
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    payload.dueAt = tomorrow.toISOString() as any;
+  } else if (payload.dueAt) {
     const taskDate = new Date(payload.dueAt).getTime();
-    
-  
+
     let limitDate;
-    if (cycleType === 'custom' && selectedCycle.value.expiresAt) {
+    if (cycleType === "custom" && selectedCycle.value.expiresAt) {
       limitDate = new Date(selectedCycle.value.expiresAt).getTime();
     } else {
       const periodEnd = getPeriodEndDate(cycleType);
@@ -143,7 +249,6 @@ const addTask = async () => {
       method: "POST",
       body: { ...payload, containerId: selectedCycle.value.id },
     });
-    cycleTasks.value.push(response);
     tasks.value.push(response);
     newTaskData.value = {
       title: "",
@@ -160,22 +265,16 @@ const addTask = async () => {
   }
 };
 
-
-
 const todayDate = ref("");
 const toggleTaskStatus = async (taskItem: any) => {
   const newStatus = taskItem.status === "completed" ? "pending" : "completed";
-
-  // Optimistic Update
   taskItem.status = newStatus;
-
   try {
     await $fetch(`/api/tasks/${taskItem.id}`, {
       method: "PATCH",
       body: { status: newStatus },
     });
   } catch (err) {
-    // Revert if failed
     taskItem.status = taskItem.status === "completed" ? "pending" : "completed";
     console.error("Failed to update status:", err);
   }
@@ -183,19 +282,14 @@ const toggleTaskStatus = async (taskItem: any) => {
 
 const deleteTask = async (taskId: string) => {
   if (!confirm("Are you sure you want to delete this task?")) return;
-
   try {
     await $fetch(`/api/tasks/${taskId}`, { method: "DELETE" });
-
-    // Remove from local state
     tasks.value = tasks.value.filter((t) => t.id !== taskId);
-    cycleTasks.value = cycleTasks.value.filter((t) => t.id !== taskId);
-
-    if (expandedTaskId.value === taskId) expandedTaskId.value = null;
   } catch (err) {
     console.error("Failed to delete task:", err);
   }
 };
+
 onMounted(() => {
   todayDate.value = getFormattedDate();
   initDashboard();
@@ -212,15 +306,10 @@ onMounted(() => {
           {{ todayDate }}
         </p>
         <div class="flex items-baseline gap-2 mt-5 font-display">
-          <h1
-            class=" text-xl font-bold text-slate-900 dark:text-white tracking-tight"
-          >
+          <h1 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
             {{ getGreeting() }},
           </h1>
-          <span
-            class="text-lg font-medium  capitalize text-sky-600"
-            >{{ userName }}</span
-          >
+          <span class="text-lg font-medium capitalize text-sky-600">{{ userName }}</span>
         </div>
       </div>
       <div class="flex items-center gap-3 w-full md:w-auto">
@@ -313,6 +402,79 @@ onMounted(() => {
       leave-to-class="opacity-0 translate-y-4 scale-95"
     >
       <div
+        v-if="showCreateModal"
+        class="fixed inset-0 z-[110] flex items-center justify-center p-4"
+      >
+        <div
+          class="absolute inset-0 bg-slate-900/40 backdrop-blur-md"
+          @click="showCreateModal = false"
+        ></div>
+        <div
+          class="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden dark:bg-neutral-900"
+        >
+          <div
+            class="p-6 border-b border-slate-50 dark:border-neutral-800 flex items-center justify-between"
+          >
+            <h2 class="font-bold text-lg dark:text-white uppercase tracking-tight">
+              New Project
+            </h2>
+            <button
+              @click="showCreateModal = false"
+              class="p-1.5 rounded-full hover:bg-slate-50 dark:hover:bg-neutral-800 transition-colors"
+            >
+              <X class="w-4 h-4 text-slate-400" />
+            </button>
+          </div>
+          <div class="p-6 space-y-4">
+            <div>
+              <label
+                class="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5 ml-1"
+                >Cycle Name</label
+              >
+              <input
+                v-model="newContainer.name"
+                type="text"
+                placeholder="Project name..."
+                class="w-full h-11 bg-slate-50 dark:bg-neutral-800 rounded-xl px-4 text-xs font-medium focus:ring-2 focus:ring-sky-500/20 outline-none dark:text-white"
+              />
+            </div>
+            <div class="grid grid-cols-1 gap-3">
+              <div>
+                <label
+                  class="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5 ml-1"
+                  >Expiry</label
+                >
+                <input
+                  v-model="newContainer.expiresAt"
+                  type="date"
+                  class="w-full h-11 bg-slate-50 dark:bg-neutral-800 rounded-xl px-3 text-xs font-bold text-slate-600 dark:text-slate-300 outline-none border-none"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="p-6 pt-0">
+            <button
+              @click="createContainer"
+              :disabled="isLoading"
+              class="w-full h-11 bg-sky-600 text-white rounded-xl text-xs font-bold shadow-lg shadow-sky-600/20 hover:bg-sky-500 transition-all flex items-center justify-center gap-2"
+            >
+              <Plus v-if="!isLoading" class="w-4 h-4" />
+              {{ isLoading ? "Creating..." : "Create Cycle" }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <Transition
+      enter-active-class="transition duration-300 ease-out"
+      enter-from-class="opacity-0 translate-y-4 scale-95"
+      enter-to-class="opacity-100 translate-y-0 scale-100"
+      leave-active-class="transition duration-200 ease-in"
+      leave-from-class="opacity-100 translate-y-0 scale-100"
+      leave-to-class="opacity-0 translate-y-4 scale-95"
+    >
+      <div
         v-if="selectedCycle"
         class="fixed inset-0 z-[100] flex items-center justify-center p-4"
       >
@@ -339,12 +501,23 @@ onMounted(() => {
                 }}
               </p>
             </div>
-            <button
-              @click="closeCycle"
-              class="p-2 rounded-full bg-slate-50 hover:bg-slate-100 dark:bg-neutral-800"
-            >
-              <X class="w-4 h-4 text-slate-500" />
-            </button>
+            <div class="flex items-center gap-2">
+              <button
+                v-if="selectedCycle.type === 'custom'"
+                @click="deleteContainer(selectedCycle.id)"
+                class="p-2 rounded-full text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors"
+                title="Delete Cycle"
+              >
+                <Trash2 class="w-4 h-4" />
+              </button>
+
+              <button
+                @click="closeCycle"
+                class="p-2 rounded-full bg-slate-50 hover:bg-slate-100 dark:bg-neutral-800"
+              >
+                <X class="w-4 h-4 text-slate-500" />
+              </button>
+            </div>
           </div>
 
           <div
@@ -357,7 +530,7 @@ onMounted(() => {
               @click="showCompletedInModal = !showCompletedInModal"
               class="text-[10px] font-bold text-sky-600 hover:text-sky-500 transition-colors uppercase"
             >
-              {{ showCompletedInModal ? "Clear Completed" : "Show Completed" }}
+              {{ showCompletedInModal ? "Hide Completed" : "Show Completed" }}
             </button>
           </div>
 
@@ -382,7 +555,7 @@ onMounted(() => {
           <div class="p-4 border-t border-slate-50 dark:border-neutral-800">
             <div
               v-if="isAddingTask"
-              class="flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2"
+              class="max-h-[30vh] overflow-y-auto pr-1 flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2"
             >
               <div>
                 <label
@@ -415,7 +588,7 @@ onMounted(() => {
                   >
                   <select
                     v-model="newTaskData.priority"
-                    class="w-full bg-slate-50 h-9 rounded-xl px-2 text-[10px] font-bold text-slate-500 dark:bg-neutral-800 outline-none border-none"
+                    class="w-full bg-slate-50 h-9 rounded-xl px-2 text-[10px] font-bold text-slate-500 dark:bg-neutral-800 border-none outline-none"
                   >
                     <option value="low">LOW PRIORITY</option>
                     <option value="medium">MED PRIORITY</option>
@@ -429,7 +602,7 @@ onMounted(() => {
                   >
                   <select
                     v-model="newTaskData.category"
-                    class="w-full bg-slate-50 h-9 rounded-xl px-2 text-[10px] font-bold text-slate-500 dark:bg-neutral-800 outline-none border-none"
+                    class="w-full bg-slate-50 h-9 rounded-xl px-2 text-[10px] font-bold text-slate-500 dark:bg-neutral-800 border-none outline-none"
                   >
                     <option
                       v-for="cat in ['work', 'personal', 'health', 'finance']"
@@ -451,29 +624,36 @@ onMounted(() => {
                     <Calendar
                       class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400"
                     />
-                    <input 
-  v-model="newTaskData.dueAt" 
-  type="date" 
-  :max="selectedCycle.type === 'custom' 
-    ? (selectedCycle.expiresAt ? new Date(selectedCycle.expiresAt).toISOString().split('T')[0] : undefined)
-    : getPeriodEndDate(selectedCycle.type)"
-  class="w-full bg-slate-50 h-10 rounded-xl pl-9 pr-3 ..." 
-/>
+                    <input
+                      v-model="newTaskData.dueAt"
+                      type="date"
+                      :min="getTodayStr()"
+                      :max="
+                        selectedCycle.type === 'custom'
+                          ? selectedCycle.expiresAt
+                            ? new Date(selectedCycle.expiresAt)
+                                .toISOString()
+                                .split('T')[0]
+                            : undefined
+                          : getPeriodEndDate(selectedCycle.type)
+                      "
+                      class="w-full bg-slate-50 h-10 rounded-xl pl-9 pr-3 text-xs dark:bg-neutral-800 outline-none"
+                    />
                   </div>
                 </div>
                 <div
                   v-else
-                  class="flex-1 flex items-center h-10 px-4 bg-sky-50/50 dark:bg-sky-500/5 rounded-xl border border-sky-100 dark:border-sky-500/20"
+                  class="flex-1 flex items-center h-10 px-4 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl border border-emerald-100 dark:border-emerald-500/20"
                 >
                   <span
-                    class="text-[10px] font-bold text-sky-600 dark:text-sky-400 uppercase tracking-widest"
-                    >Resets: Tonight</span
+                    class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest"
+                    >Due: Tonight</span
                   >
                 </div>
                 <button
                   @click="addTask"
                   :disabled="isLoading"
-                  class="h-10 w-12 flex items-center justify-center rounded-xl bg-sky-600 text-white disabled:opacity-50 self-end"
+                  class="h-10 w-12 flex items-center justify-center rounded-xl bg-sky-600 text-white disabled:opacity-50 self-end transition-all hover:bg-sky-500"
                 >
                   <Send v-if="!isLoading" class="w-4 h-4" />
                   <div

@@ -36,16 +36,15 @@ export const getPeriodEndDate = (type: 'weekly' | 'monthly' | 'custom' | 'daily'
   const now = new Date();
   
   if (type === 'weekly') {
-    // End of the current week (Saturday)
+
     const lastDay = new Date(now.setDate(now.getDate() - now.getDay() + 6));
     return lastDay.toISOString().split('T')[0];
   }
   
   if (type === 'monthly') {
-    // Last day of the current month
     const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
     return lastDay.toISOString().split('T')[0];
   }
   
-  return null; // For 'custom', we use the actual expiresAt from the DB
+  return null;
 }
