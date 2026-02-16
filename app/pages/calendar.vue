@@ -25,7 +25,7 @@ import {
   parseISO,
 } from "date-fns";
 
-definePageMeta({ layout: "app-layout", middleware: ["auth"] });
+definePageMeta({ layout: "app-layout", middleware: ["auth", "verified-email"] });
 
 const tasks = ref<any[]>([]);
 const isLoading = ref(true);
@@ -132,12 +132,12 @@ onMounted(() => fetchData());
       class="bg-white dark:bg-neutral-900 border border-white dark:border-neutral-900 rounded-lg overflow-hidden shadow-sm"
     >
       <div
-        class="grid grid-cols-7 border-b border-slate-50 dark:border-neutral-800 bg-slate-50/50 dark:bg-neutral-800/30"
+        class="grid grid-cols-7 border-b border-slate-50 dark:border-neutral-800 bg-sky-600"
       >
         <div
           v-for="day in ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']"
           :key="day"
-          class="py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]"
+          class="py-4 text-center text-[10px] font-black text-sky-50 uppercase tracking-[0.2em]"
         >
           {{ day }}
         </div>
