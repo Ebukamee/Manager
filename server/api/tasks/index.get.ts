@@ -22,6 +22,7 @@ export default defineEventHandler(async (event) => {
     )
   ];
 
+
   if (period !== 'all') {
     conditions.push(eq(container.type, period));
   }

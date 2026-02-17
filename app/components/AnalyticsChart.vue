@@ -22,7 +22,7 @@ const chartData = computed(() => ({
   ]
 }))
 
-const chartOptions = {
+const chartOptions : {} = {
   responsive: true,
   maintainAspectRatio: false,
   scales: {

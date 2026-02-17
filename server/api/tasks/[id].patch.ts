@@ -8,6 +8,9 @@ export default defineEventHandler(async (event) => {
   if (!session) throw createError({ statusCode: 401, message: 'Unauthorized' })
 
   const id = getRouterParam(event, 'id')
+  if (!id) {
+    throw createError({ statusCode: 400, message: 'Task ID is required' })
+  }
   const body = await readBody(event)
 
   const [updatedTask] = await db.update(task)

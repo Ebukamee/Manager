@@ -13,6 +13,7 @@ import {
   Send,
   ChevronDown,
   Trash2,
+  ClipboardCheck,
 } from "lucide-vue-next";
 import { getFormattedDate, getGreeting, getPeriodEndDate } from "../utilis/helper";
 import { authClient } from "~/lib/auth-client";
@@ -181,10 +182,10 @@ const showCompletedInModal = ref(false);
 
 const filteredCycleTasks = computed(() => {
   if (!selectedCycle.value) return [];
-  const today = getTodayStr();
-  const startWeek = getStartOfWeek();
-  const startMonth = getStartOfMonth();
-  const tomorrow = getTomorrowStr();
+  const today: any = getTodayStr();
+  const startWeek: any = getStartOfWeek();
+  const startMonth: any = getStartOfMonth();
+  const tomorrow: any = getTomorrowStr();
 
   // Filter by container ID
   let list = tasks.value.filter(
@@ -386,6 +387,37 @@ onMounted(() => {
             :key="i"
             class="h-16 bg-slate-50 dark:bg-neutral-800/50 animate-pulse border-b border-slate-50 dark:border-neutral-800"
           ></div>
+        </template>
+        <template v-else-if="allTasksSorted.length == 0">
+          <div
+            class="flex flex-col items-center justify-center py-20 px-6 bg-white dark:bg-neutral-900 border border-slate-100 dark:border-neutral-900 rounded-xl transition-all"
+          >
+            <div class="relative mb-4">
+              <div class="absolute inset-0 bg-sky-500/10 blur-2xl rounded-full"></div>
+              <div
+                class="relative bg-white dark:bg-neutral-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-neutral-700"
+              >
+                <ClipboardCheck class="w-6 h-6 text-slate-400 dark:text-slate-500" />
+              </div>
+            </div>
+
+            <div class="text-center space-y-1">
+              <h3
+                class="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-[0.2em]"
+              >
+                Clear Horizon
+              </h3>
+              <p
+                class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest"
+              >
+                No active tasks found in this cycle
+              </p>
+            </div>
+
+            <div class="mt-6">
+              <div class="h-[1px] w-8 bg-slate-200 dark:bg-neutral-800"></div>
+            </div>
+          </div>
         </template>
         <template v-else>
           <TaskListItem v-for="task in allTasksSorted" :key="task.id" :task="task" />
