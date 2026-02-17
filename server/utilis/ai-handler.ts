@@ -1,22 +1,28 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 
 export const callGemini = async (persona: string, material: string) => {
   const config = useRuntimeConfig();
   
-  const genAI = new GoogleGenerativeAI(config.geminiApiKey);
-  
-  const model = genAI.getGenerativeModel({ 
-    model: "gemini-1.5-flash",
-    systemInstruction: persona, 
+  const ai = new GoogleGenAI({
+    apiKey: config.geminiApiKey
   });
 
-  const result = await model.generateContent({
-    contents: [{ role: "user", parts: [{ text: material }] }],
-    generationConfig: {
-      temperature: 0.9, 
-      maxOutputTokens: 200,
-    },
+  const response = await ai.models.generateContent({
+    model: "gemini-3-flash-preview",
+    contents: [
+      {
+        role: "user",
+        parts: [
+          { text: `System Instruction: ${persona}` },
+          { text: `Data to Roast: ${material}` }
+        ]
+      }
+    ],
+    config: {
+      temperature: 0.9,
+      maxOutputTokens: 2000, 
+    }
   });
 
-  return result.response.text();
+  return response.text;
 };

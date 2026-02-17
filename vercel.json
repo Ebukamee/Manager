@@ -1,0 +1,14 @@
+{
+  "rewrites": [
+    {
+      "source": "/((?!api/|static/|_nuxt/).*)",
+      "destination": "/"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/roast",
+      "schedule": "0 9 * * *"
+    }
+  ]
+}
