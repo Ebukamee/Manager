@@ -4,6 +4,10 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  runtimeConfig: {
+    geminiApiKey: process.env.GEMINI_API_KEY,
+    cronSecret: process.env.CRON_SECRET,
+  },
   compatibilityDate: '2025-07-15',
   devtools: { enabled: false },
 
