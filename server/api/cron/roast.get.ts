@@ -2,19 +2,19 @@ import { db } from "~~/server/utilis/db";
 import { user, task, container } from "~~/server/database/schema";
 import { eq, and, lt, sql } from "drizzle-orm";
 import { getRoastPrompt } from "~~/server/utilis/roaster";
+import { callGemini } from "~~/server/utilis/ai-handler";
+import { sendRoastEmail } from "~~/server/utilis/email";
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
   const authHeader = getHeader(event, 'Authorization');
   
-  // Ensure the CRON_SECRET is set in your .env and nuxt.config.ts
   if (authHeader !== `Bearer ${config.cronSecret}`) {
     throw createError({ statusCode: 401, statusMessage: "Unauthorized" });
   }
 
   const now = new Date();
 
-  // Optimized query to get users and their overdue tasks in one go
   const targets = await db.select({
     id: user.id,
     name: user.name,
@@ -43,7 +43,16 @@ export default defineEventHandler(async (event) => {
   }
 
   for (const target of targets) {
-    const { persona, material } = getRoastPrompt(target as any, target.tasks as any);
+    try {
+      const { persona, material } = getRoastPrompt(target as any, target.tasks as any);
+      
+      const roastText = await callGemini(persona, material);
+      await sendRoastEmail(target.email, roastText);
+      
+      console.log(`Roasted ${target.email} successfully.`);
+    } catch (err) {
+      console.error(`Failed to roast user ${target.id}:`, err);
+    }
   }
 
   return { 
