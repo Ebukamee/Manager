@@ -23,13 +23,41 @@ export const auth = betterAuth({
     additionalFields: {
       jobTitle: {
         type: "string",
-        required:true,
       },
       bio: {
         type: "string",
-         required:true,
       },
+      roastLevel: {
+        type:'string',
+
+      }
     },
+    deleteUser: {
+      enabled: true,
+      // This is the key part: it replaces the password requirement with an email flow
+      sendDeleteAccountVerification: async ({ user, url }) => {
+        await resend.emails.send({
+          from: "onboarding@resend.dev",
+          to: user.email,
+          subject: "Confirm Account Deletion",
+          html: `
+            <div style="font-family: sans-serif; max-width: 600px; margin: auto;">
+              <h2>Delete Account Request</h2>
+              <p>Hello ${user.name},</p>
+              <p>We received a request to permanently delete your account. This action cannot be undone.</p>
+              <p>If you intended to delete your account, please click the button below:</p>
+              <a href="${url}" style="background-color: #e11d48; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; margin-top: 20px;">
+                Permanently Delete My Account
+              </a>
+              <p style="margin-top: 30px; font-size: 12px; color: #64748b;">
+                If you did not request this, you can safely ignore this email.
+              </p>
+            </div>
+          `,
+        });
+      }
+    }
+    
   },
   emailAndPassword: {  
     enabled: true,
@@ -43,7 +71,6 @@ export const auth = betterAuth({
       });
     },
     onPasswordReset: async ({ user }, request) => {
-      // your logic here
       console.log(`Password for user ${user.email} has been reset.`);
     },
 
@@ -66,7 +93,6 @@ databaseHooks: {
         user: {
             create: {
                 after: async (user) => {
-                    // Create the "Immortal Big 3" for the new user
                     await db.insert(schema.container).values([
                         {
                             userId: user.id,
@@ -86,6 +112,7 @@ databaseHooks: {
                     ]);
                 },
             },
+            
         },
     },
 

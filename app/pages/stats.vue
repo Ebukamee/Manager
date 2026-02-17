@@ -6,7 +6,7 @@ import { ChevronDown } from "lucide-vue-next";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-definePageMeta({ layout: "app-layout", middleware: ["auth"] });
+definePageMeta({ layout: "app-layout", middleware: ["auth", "verified-email"] });
 
 const tasks = ref<any[]>([]);
 const containers = ref<any[]>([]);
@@ -17,7 +17,6 @@ const activePeriod = ref<"all" | "daily" | "weekly" | "monthly" | "custom">("all
 const selectedContainerId = ref<string | null>(null);
 const activeCategory = ref("All");
 
-// --- LOCAL DATE HELPERS (Matches Dashboard) ---
 const getLocalToday = () => {
   const d = new Date();
   const offset = d.getTimezoneOffset() * 60000;
@@ -101,14 +100,14 @@ const findTaskContainer = (task: any) => {
 const processedStats = computed(() => {
   if (!tasks.value.length) return { completed: 0, pending: 0, expired: 0, total: 0 };
 
-  const today = getLocalToday();
-  const tomorrow = getTomorrowStr();
-  const startWeek = getLocalStartOfWeek();
-  const startMonth = getLocalStartOfMonth();
+  const today : any = getLocalToday();
+  const tomorrow : any = getTomorrowStr();
+  const startWeek: any= getLocalStartOfWeek();
+  const startMonth : any = getLocalStartOfMonth();
 
   // DASHBOARD STYLE FILTERING + CREATION DATE CHECK
   let list = tasks.value.filter((t) => {
-    // 1. Category Filter
+    // Category Filter
     if (activeCategory.value !== "All") {
       if (t.category?.toLowerCase() !== activeCategory.value.toLowerCase()) return false;
     }
@@ -121,19 +120,19 @@ const processedStats = computed(() => {
       ? container.createdAt.split("T")[0]
       : "0000-00-00";
 
-    // 2. Specific Container Selection (Overwrites period logic)
+    // Specific Container Selection (Overwrites period logic)
     if (activePeriod.value === "custom" && selectedContainerId.value) {
       return String(container.id) === String(selectedContainerId.value);
     }
 
-    // 3. Tab Filter (Daily, Weekly, Monthly)
+    // Tab Filter (Daily, Weekly, Monthly)
     if (activePeriod.value !== "all" && container.type !== activePeriod.value) {
       return false;
     }
 
-    // 4. Strict Time Window Logic (Using Task DueAt AND Container CreatedAt)
+    // Strict Time Window Logic (Using Task DueAt AND Container CreatedAt)
     if (container.type === "daily") {
-      return t.dueAt >= today && t.dueAt <= tomorrow;
+      return t.dueAt >= today  && t.dueAt <= tomorrow;
     }
 
     if (container.type === "weekly") {
@@ -141,7 +140,6 @@ const processedStats = computed(() => {
     }
 
     if (container.type === "monthly") {
-      // Must be due this month AND container must not be from a past month
       return t.dueAt >= startMonth && containerCreated >= startMonth;
     }
 
@@ -193,13 +191,8 @@ onMounted(() => fetchData());
       class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
     >
       <div>
-        <h1
-          class="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-tight"
-        >
-          Analytics Center
-        </h1>
-        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">
-          Performance Breakdown
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">
+          Stats and Analytics
         </p>
       </div>
 

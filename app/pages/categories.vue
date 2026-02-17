@@ -1,19 +1,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import {
-  Search,
   X,
-  Circle,
-  ChevronDown,
-  Calendar,
-  ArrowUpRight,
-  Send,
   Briefcase,
   User,
   HeartPulse,
   Wallet,
 } from "lucide-vue-next";
-import { getFormattedDate, getGreeting, getCategoryClass } from "../utilis/helper";
 import TaskAccordionItem from "~/components/TaskAccordionItem.vue";
 
 definePageMeta({

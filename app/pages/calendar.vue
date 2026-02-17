@@ -86,13 +86,8 @@ onMounted(() => fetchData());
       class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
     >
       <div>
-        <h1
-          class="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-2"
-        >
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">
           Task Calendar
-        </h1>
-        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">
-          See all you tasks and deadline in a calendar
         </p>
       </div>
 
