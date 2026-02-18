@@ -31,7 +31,6 @@ export const auth = betterAuth({
     },
     deleteUser: {
       enabled: true,
-      // This is the key part: it replaces the password requirement with an email flow
       sendDeleteAccountVerification: async ({ user, url }) => {
         await resend.emails.send({
           from: "onboarding@resend.dev",
