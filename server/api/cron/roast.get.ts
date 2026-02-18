@@ -46,9 +46,9 @@ export default defineEventHandler(async (event) => {
     try {
       const { persona, material } = getRoastPrompt(target as any, target.tasks as any);
       
-      const roastText = await callGemini(persona, material);
-      await sendRoastEmail(target.email, roastText);
-      
+      const roastText = await callGemini(persona, material) as string;
+      await sendRoastEmail(target.email, target.name, roastText);
+
       console.log(`Roasted ${target.email} successfully.`);
     } catch (err) {
       console.error(`Failed to roast user ${target.id}:`, err);
