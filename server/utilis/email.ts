@@ -3,8 +3,6 @@ import { Resend } from 'resend';
 export const sendRoastEmail = async (email: string, userName: string, roastText: string) => {
   const config = useRuntimeConfig();
   const resend = new Resend(config.resendApiKey);
-  
-  // Use your app's primary color (fallback to a sleek blue if not found)
   const appColor = config.public?.primaryColor || '#3b82f6'; 
 
   const formattedRoast = roastText.replace(/\n/g, '<br>');

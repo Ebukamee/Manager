@@ -20,7 +20,7 @@ export const callGemini = async (persona: string, material: string) => {
     ],
     config: {
       temperature: 0.9,
-      maxOutputTokens: 2000, 
+      maxOutputTokens: 1500, 
     }
   });
 
