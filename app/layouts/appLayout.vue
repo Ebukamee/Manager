@@ -40,7 +40,6 @@ const toggleTheme = () => {
   <div
     class="min-h-screen bg-white text-slate-900 font-sans transition-colors dark:bg-black dark:text-white flex"
   >
-    <!-- DESKTOP SIDEBAR -->
     <aside
       class="hidden lg:flex flex-col w-64 h-screen fixed left-0 top-0 border-r border-slate-100 bg-white px-5 py-6 z-50 dark:border-neutral-900 dark:bg-black"
     >
@@ -80,7 +79,6 @@ const toggleTheme = () => {
         </NuxtLink>
       </nav>
 
-      <!-- DESKTOP LOGOUT -->
       <div class="mt-auto pt-4 border-t border-slate-100 dark:border-neutral-800">
         <button
           @click="handleLogout"
@@ -92,15 +90,15 @@ const toggleTheme = () => {
       </div>
     </aside>
 
-    <!-- MAIN CONTENT -->
-    <main class="flex-1 w-full lg:pl-64 min-h-screen pb-24 lg:pb-0">
+    <main class="mt-10 lg:mt-0 flex-1 w-full lg:pl-64 min-h-screen pb-24 lg:pb-0">
       <div class="max-w-[1000px] mx-auto p-4 sm:p-8">
         <slot />
       </div>
     </main>
 
-    <!-- MOBILE THEME TOGGLE -->
-    <div class="fixed top-4 right-4 lg:hidden z-[60]">
+    <div class="fixed top-2 left-4 right-4 flex justify-between items-center lg:hidden">
+      <img src="~/assets/logo.png" class="h-10 w-10 rounded-md object-cover" />
+
       <button
         @click="toggleTheme"
         class="rounded-full bg-white/90 backdrop-blur border p-2 text-slate-500 dark:bg-black/90 dark:border-neutral-800"
@@ -130,7 +128,6 @@ const toggleTheme = () => {
           <component :is="item.icon" class="w-4 h-4" />
         </NuxtLink>
 
-        <!-- MOBILE LOGOUT -->
         <button
           @click="handleLogout"
           class="flex items-center justify-center w-10 h-10 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-all"

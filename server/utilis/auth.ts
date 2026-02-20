@@ -151,7 +151,7 @@ export const auth = betterAuth({
     },
   },
   databaseHooks: {
-    user: {
+user: {
       create: {
         after: async (user) => {
           await db.insert(schema.container).values([
@@ -171,6 +171,29 @@ export const auth = betterAuth({
               type: "monthly",
             },
           ]);
+
+          try {
+            await resend.emails.send({
+              from: 'Manager <onboarding@resend.dev>',
+              to: user.email,
+              subject: 'Welcome to Manager',
+              html: `
+                <div style="font-family: sans-serif; max-width: 600px; color: #1a1a1a;">
+                  <h2>Welcome, ${user.name}!</h2>
+                  <p>Your account is ready and we've set up your Daily, Weekly, and Monthly containers.</p>
+                  <p>Start tracking your performance now to stay ahead of the curve.</p>
+                  <div style="margin-top: 24px;">
+                    <a href="${process.env.BETTER_AUTH_URL}/dashboard" 
+                       style="background: #0284c7; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: bold;">
+                       Open Dashboard
+                    </a>
+                  </div>
+                </div>
+              `
+            });
+          } catch (e) {
+            console.error("Welcome email failed to send:", e);
+          }
         },
       },
     },

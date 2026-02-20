@@ -37,7 +37,7 @@
         </div>
 
         <h1
-          class="font-sans mx-auto max-w-5xl lg:text-5xl text-3xl font-bold xtracking-tight"
+          class="font-sans mx-auto max-w-5xl text-5xl font-bold tracking-tight sm:text-6xl"
         >
           Finally, A Manager You <br />
           <span
