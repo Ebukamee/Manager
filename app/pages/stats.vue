@@ -100,10 +100,10 @@ const findTaskContainer = (task: any) => {
 const processedStats = computed(() => {
   if (!tasks.value.length) return { completed: 0, pending: 0, expired: 0, total: 0 };
 
-  const today : any = getLocalToday();
-  const tomorrow : any = getTomorrowStr();
-  const startWeek: any= getLocalStartOfWeek();
-  const startMonth : any = getLocalStartOfMonth();
+  const today: any = getLocalToday();
+  const tomorrow: any = getTomorrowStr();
+  const startWeek: any = getLocalStartOfWeek();
+  const startMonth: any = getLocalStartOfMonth();
 
   // DASHBOARD STYLE FILTERING + CREATION DATE CHECK
   let list = tasks.value.filter((t) => {
@@ -132,7 +132,7 @@ const processedStats = computed(() => {
 
     // Strict Time Window Logic (Using Task DueAt AND Container CreatedAt)
     if (container.type === "daily") {
-      return t.dueAt >= today  && t.dueAt <= tomorrow;
+      return t.dueAt >= today && t.dueAt <= tomorrow;
     }
 
     if (container.type === "weekly") {
@@ -197,14 +197,14 @@ onMounted(() => fetchData());
       </div>
 
       <div
-        class="flex bg-slate-100 dark:bg-neutral-800 p-1 rounded-xl border border-slate-200 dark:border-neutral-700"
+        class="flex flex-wrap bg-slate-100 dark:bg-neutral-800 p-1 rounded-xl border border-slate-200 dark:border-neutral-700"
       >
         <button
           v-for="p in ['all', 'daily', 'weekly', 'monthly']"
           :key="p"
           @click="setActivePeriod(p)"
           :class="[
-            'px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest rounded-lg transition-all',
+            'flex-1 sm:flex-none px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest rounded-lg transition-all',
             activePeriod === p
               ? 'bg-white text-slate-900 shadow-sm dark:bg-neutral-700 dark:text-white'
               : 'text-slate-500 hover:text-slate-700',
@@ -213,11 +213,11 @@ onMounted(() => fetchData());
           {{ p }}
         </button>
 
-        <div class="relative ml-1">
+        <div class="relative ml-1 flex-1 sm:flex-none">
           <select
             v-model="selectedContainerId"
             :class="[
-              'pl-3 pr-8 py-1.5 text-[9px] font-bold uppercase tracking-widest rounded-lg appearance-none bg-transparent outline-none cursor-pointer',
+              'w-full pl-3 pr-8 py-1.5 text-[9px] font-bold uppercase tracking-widest rounded-lg appearance-none bg-transparent outline-none cursor-pointer',
               activePeriod === 'custom'
                 ? 'bg-white text-slate-900 shadow-sm dark:bg-neutral-700 dark:text-white'
                 : 'text-slate-500 hover:text-slate-700',
@@ -314,7 +314,7 @@ onMounted(() => fetchData());
           <h3
             class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-12"
           >
-            Efficiency Ratio
+            Completion Ratio
           </h3>
           <div class="relative h-48 w-48">
             <ClientOnly>
