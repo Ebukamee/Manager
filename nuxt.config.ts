@@ -12,7 +12,7 @@ export default defineNuxtConfig({
   future: {
     compatibilityVersion: 4,
   },
-  modules: ['@nuxtjs/color-mode'],
+  modules: ['@nuxtjs/color-mode','@vite-pwa/nuxt'],
 srcDir: 'app/',
   css: ['~/assets/css/main.css'],
  app: {
@@ -20,9 +20,13 @@ srcDir: 'app/',
       link: [
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
-        { rel: 'icon', type: 'image/png', href: 'https://manager-sandy-nine.vercel.app/_nuxt/logo.CTHVlRu7.png' },
+        // { rel: 'icon', type: 'image/png', href: '/logo.png' },
         { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Space+Grotesk:wght@300..700&display=swap' }
-      ]
+      ],
+      meta: [
+        { name: 'apple-mobile-web-app-capable', content: 'yes' },
+        { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
+      ],
     }
   },
 
@@ -38,6 +42,31 @@ srcDir: 'app/',
     ],
    
   },
+
+  pwa: {
+    registerType: 'autoUpdate',
+    
+    manifest: {
+      name: 'Manager App',
+      short_name: 'Manager',
+      theme_color: '#000000',
+      icons: [
+        {
+          src: '/logo.png',
+          sizes: '192x192',
+          type: 'image/png',
+        },
+        {
+          src: '/logo.png',
+          sizes: '512x512',
+          type: 'image/png',
+        },
+      ],
+    },
+    client: {
+      installPrompt: true,
+    },
+  },
   
   imports: {
     transform: {
@@ -46,7 +75,7 @@ srcDir: 'app/',
     presets: [
       {
         from: 'lucide-vue-next',
-        imports: ['Sun', 'Moon', 'Menu', 'X', 'Check', 'ArrowRight'] // Add icons you need here
+        imports: ['Sun', 'Moon', 'Menu', 'X', 'Check', 'ArrowRight'] 
       }
     ]
   },
