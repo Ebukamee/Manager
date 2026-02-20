@@ -50,6 +50,7 @@ srcDir: 'app/',
       name: 'Manager App',
       short_name: 'Manager',
       start_url: '/dashboard',
+      display: "standalone",
       theme_color: '#000000',
       icons: [
         {
