@@ -12,6 +12,7 @@ export default defineNuxtConfig({
   future: {
     compatibilityVersion: 4,
   },
+  modules: ['@nuxtjs/color-mode'],
 srcDir: 'app/',
   css: ['~/assets/css/main.css'],
  app: {
