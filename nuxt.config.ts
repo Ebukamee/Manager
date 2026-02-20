@@ -2,6 +2,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 export default defineNuxtConfig({
+  debug:true,
   runtimeConfig: {
     geminiApiKey: process.env.GEMINI_API_KEY,
     cronSecret: process.env.CRON_SECRET,
@@ -20,7 +21,7 @@ srcDir: 'app/',
       link: [
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
-        // { rel: 'icon', type: 'image/png', href: '/logo.png' },
+        // { rel: 'icon', type: 'image/png', href: '/' },
         { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Space+Grotesk:wght@300..700&display=swap' }
       ],
       meta: [
