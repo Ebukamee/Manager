@@ -108,7 +108,7 @@ export const auth = betterAuth({
     sendVerificationEmail: async ({ user, url, token }, request) => {
       console.log("Sending Verification Email to:", user.email);
       await resend.emails.send({
-        from: "onboarding@resend.dev",
+        from: "Manager <noreply@mymanager.name.ng>",
         to: user.email,
         subject: "Verify your email address",
         html: `
