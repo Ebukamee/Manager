@@ -33,7 +33,7 @@ export const auth = betterAuth({
       enabled: true,
       sendDeleteAccountVerification: async ({ user, url }) => {
         await resend.emails.send({
-          from: "onboarding@resend.dev",
+          from: "Manager <noreply@mymanager.name.ng>",
           to: user.email,
           subject: "Confirm Account Deletion",
           html: `
@@ -59,7 +59,7 @@ export const auth = betterAuth({
     requireEmailVerification: false,
     sendResetPassword: async ({ user, url, token }, request) => {
       await resend.emails.send({
-        from: "onboarding@resend.dev",
+        from: "Manager <noreply@mymanager.name.ng>",
         to: user.email,
         subject: "Reset your password",
         html: `
