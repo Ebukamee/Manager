@@ -8,7 +8,7 @@ export const sendRoastEmail = async (email: string, userName: string, roastText:
   const formattedRoast = roastText.replace(/\n/g, '<br>');
 
   await resend.emails.send({
-    from: 'onboarding@resend.dev',
+    from: 'Manager <noreply@www.mymanager.name.ng>',
     to: email,
     subject: 'Task Reminder and Performance Review',
     html: `
