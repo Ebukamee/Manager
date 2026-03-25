@@ -8,7 +8,7 @@ export const sendRoastEmail = async (email: string, userName: string, roastText:
   const formattedRoast = roastText.replace(/\n/g, '<br>');
 
   await resend.emails.send({
-    from: 'Manager <noreply@www.mymanager.name.ng>',
+    from: 'Manager <noreply@mymanager.name.ng>',
     to: email,
     subject: 'Task Reminder and Performance Review',
     html: `
@@ -35,7 +35,7 @@ export const sendRoastEmail = async (email: string, userName: string, roastText:
               ${formattedRoast}
             </div>
 
-            <a href="https://" class="btn">View Tasks</a>
+            <a href="https://mymanager.name.ng" class="btn">View Tasks</a>
             
             <p class="footer">
               This is an automated review. Improve your performance to stop these emails.
